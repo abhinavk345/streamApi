@@ -1,0 +1,214 @@
+A. Basic to Intermediate Stream Questions (1–15)
+
+Convert a List<String> to uppercase using streams.
+
+Filter names starting with a vowel.
+
+Count strings longer than 5 characters.
+
+Find the first non-empty string using Stream + Optional.
+
+Remove null values from a list using streams.
+
+Sort a list of objects by multiple fields (name asc, age desc).
+
+Convert a list of integers to a list of squares using map().
+
+Convert a List<String> to a comma-separated string using Collectors.joining.
+
+Reverse-sort a list using Comparator.
+
+Check if any element contains a substring.
+
+Find distinct items and count duplicates.
+
+Convert int[] to List<Integer> using streams.
+
+Find min/max from a list of integers.
+
+Use dropWhile and takeWhile on a list.
+
+Use peek() to debug a stream pipeline.
+
+B. Map & Multi-Level Map Problems (16–30)
+
+Convert List<Employee> → Map<id, Employee>.
+
+Convert List<Employee> → Map<Department, List<Employee>>.
+
+Convert Map<String, List<String>> → flat List<String>.
+
+Convert nested map Map<String, Map<String, Integer>> → flat map of (key1.key2, value).
+
+Invert a map: Map<K, V> → Map<V, K>.
+
+Merge two maps using streams (if key exists, sum values).
+
+Sort a map by keys using streams.
+
+Sort a map by values using streams.
+
+Convert Map<String, List<Employee>> → List<Employee> (multi-level flattening).
+
+Count values in Map<String, List<String>>.
+
+Combine list of maps → single map.
+
+Filter map entries based on key and value conditions.
+
+Convert Map<Department, List<Employee>> → Map<Department, Long> (employee count).
+
+Find the max salary employee per department using groupingBy + maxBy.
+
+Remove entries where the value list is empty (filter on map).
+
+C. Nested Object & Complex Mapping Problems (31–45)
+
+Extract all phone numbers from List<User> where User → List<Phone>.
+
+From List<Order> find all products ordered in last 24h (Order → List<Product>).
+
+Flatten List<Company> → all employees → all addresses.
+
+Convert nested structure:
+Company → List<Department> → List<Employee> to List<Employee>.
+
+Extract unique skills from employees (Employee → Set<Skill>).
+
+Find highest-paid employee across all departments of all companies.
+
+From List<Student> (contains List<Marks>) → topper per subject.
+
+Find all customers who ordered more than 3 products total.
+
+Sort employees by department then by project count.
+
+Count total tasks across all projects for all employees.
+
+Convert List<Invoice> → Map<InvoiceId, TotalAmount>.
+
+From nested classes extract only those with a matching field deep inside.
+
+Convert List<User> → Map<City, Set<Hobbies>>.
+
+Flatten List<List<List<Integer>>> using flatMap.
+
+From List<Employee> create a hierarchical structure dept → role → count.
+
+D. Filtering & Scenario-Based Questions (46–60)
+
+Filter employees older than 30 earning > 50k.
+
+Get all orders whose any product has discount > 20%.
+
+From list of transactions, remove failed ones and sort by timestamp.
+
+Find students where all subjects > passing marks.
+
+Filter strings where length == index (stream with IntStream.range).
+
+Extract even indexed elements using streams.
+
+Skip first 3 elements, take next 5.
+
+Case-insensitive filtering of names.
+
+Find longest string without using a loop.
+
+Paginate a list using skip() and limit().
+
+Check if list is strictly increasing using streams.
+
+Compare two lists and extract common + uncommon elements.
+
+Remove duplicates but keep order (distinct() + LinkedHashSet logic).
+
+Find duplicate elements and their frequencies.
+
+Filter map entries whose value contains certain keywords.
+
+E. Grouping, Partitioning, Summarizing (61–75)
+
+Group employees by department.
+
+Group employees by age bracket (20–30, 30–40…).
+
+Group products by category + sum total price.
+
+Partition students into pass/fail using partitioningBy().
+
+Group transactions by currency + count entries.
+
+Employee list → summary statistics (min, max, avg salary).
+
+Group by month of date (extract month using stream).
+
+Group invoices by customer and calculate total outstanding.
+
+Group employees by skill and count employees per skill.
+
+Group products by warehouse + filter expired ones.
+
+Group orders by status then sort groups by count.
+
+Group books by author and find highest-rated books.
+
+Group by year → sales stats per year.
+
+Find top 3 highest-selling products by grouping + sorting.
+
+Summarize salary by role using Collectors.summingDouble.
+
+F. Optional, Comparator, Reduce Problems (76–90)
+
+Use reduce() to calculate factorial.
+
+Find longest string using reduce().
+
+Sum all numbers using reduce(identity, accumulator).
+
+Find employee with min salary using reduce.
+
+Convert list of names into hyphen-separated string using reduce.
+
+Sort using custom comparator inside stream.
+
+Multi-level sorting with null handling.
+
+Use Optional to return default object if employee not found.
+
+Reduce list of invoices into aggregated invoice.
+
+Find oldest person from nested list using reduce + flatMap.
+
+Find max using reduce without using max().
+
+Combine multiple lists using stream.of(list1, list2).flatMap().
+
+Use reduce to group consecutive duplicates.
+
+Implement custom collector to join strings with prefix/suffix.
+
+Find second highest salary using stream (no sorting allowed / no skip allowed).
+
+G. Real Industry Use-case Scenarios (91–100)
+
+Convert DB result rows (List<Object[]>) into DTO list using streams.
+
+Convert API response (complex JSON) into POJO list using map() chain.
+
+Build hierarchical JSON from list of flat entities using groupingBy.
+
+Merge duplicate customers based on email using stream grouping.
+
+Clean CSV rows (remove blank, trim, validate fields).
+
+Detect anomalies in transaction list using stream filters.
+
+Remove sensitive fields from user list (masking using map).
+
+Build combined config map from multiple config files using stream merge.
+
+Chunk a list into fixed-size batches using stream.
+
+ParallelStream — measure performance and convert sequential to parallel safely.
