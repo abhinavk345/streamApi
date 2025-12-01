@@ -1,0 +1,986 @@
+
+A. Basic to Intermediate Stream Questions (1–15)
+==============
+1. Convert a List<String> to uppercase
+List<String> result = list.stream()
+        .map(String::toUpperCase)
+        .toList();
+
+✅ 2. Filter names starting with a vowel
+List<String> result = names.stream()
+        .filter(n -> n.matches("(?i)^[aeiou].*"))
+        .toList();
+
+✅ 3. Count strings longer than 5 characters
+long count = list.stream()
+        .filter(s -> s.length() > 5)
+        .count();
+
+✅ 4. Find the first non-empty string
+Optional<String> first = list.stream()
+        .filter(s -> s != null && !s.isEmpty())
+        .findFirst();
+
+✅ 5. Remove null values
+List<String> cleaned = list.stream()
+        .filter(Objects::nonNull)
+        .toList();
+
+✅ 6. Sort objects by multiple fields (name asc, age desc)
+
+Assume Person(name, age):
+
+List<Person> sorted = people.stream()
+        .sorted(Comparator.comparing(Person::getName)
+                .thenComparing(Comparator.comparing(Person::getAge).reversed()))
+        .toList();
+
+✅ 7. Convert list of integers → list of squares
+List<Integer> squares = nums.stream()
+        .map(n -> n * n)
+        .toList();
+
+✅ 8. Convert List<String> → comma-separated string
+String result = list.stream()
+        .collect(Collectors.joining(", "));
+
+✅ 9. Reverse-sort a list using Comparator
+List<Integer> sorted = numbers.stream()
+        .sorted(Comparator.reverseOrder())
+        .toList();
+
+✅ 10. Check if any element contains a substring
+boolean exists = list.stream()
+        .anyMatch(s -> s.contains("test"));
+
+✅ 11. Find distinct items AND count duplicates
+Distinct items:
+List<String> distinct = list.stream()
+        .distinct()
+        .toList();
+
+Duplicate counts:
+Map<String, Long> duplicates = list.stream()
+        .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+
+✅ 12. Convert int[] → List<Integer>
+int[] arr = {1,2,3};
+
+List<Integer> result = Arrays.stream(arr)
+        .boxed()
+        .toList();
+
+✅ 13. Find min and max
+int min = numbers.stream().min(Integer::compare).orElseThrow();
+int max = numbers.stream().max(Integer::compare).orElseThrow();
+
+✅ 14. Use dropWhile + takeWhile (Java 9+)
+takeWhile: take until condition becomes false
+List<Integer> taken = numbers.stream()
+        .takeWhile(n -> n < 50)
+        .toList();
+
+dropWhile: skip while condition is true
+List<Integer> dropped = numbers.stream()
+        .dropWhile(n -> n < 50)
+        .toList();
+
+✅ 15. Use peek() to debug a stream pipeline
+List<Integer> result = numbers.stream()
+        .peek(n -> System.out.println("Before filter: " + n))
+        .filter(n -> n % 2 == 0)
+        .peek(n -> System.out.println("After filter: " + n))
+        .map(n -> n * 2)
+        .peek(n -> System.out.println("After map: " + n))
+        .toList();
+
+=================================
+B. Map & Multi-Level Map Problems (16–30)
+With Full Code Solutions 🚀
+
+Assume:
+
+class Employee {
+    int id;
+    String name;
+    String department;
+    double salary;
+
+    // constructor + getters
+}
+
+16. Convert List<Employee> → Map<id, Employee>
+Map<Integer, Employee> map =
+        employees.stream()
+                 .collect(Collectors.toMap(Employee::getId, e -> e));
+
+17. Convert List<Employee> → Map<Department, List<Employee>>
+Map<String, List<Employee>> map =
+        employees.stream()
+                 .collect(Collectors.groupingBy(Employee::getDepartment));
+
+18. Convert Map<String, List<String>> → flat List<String>
+List<String> flat =
+        map.entrySet().stream()
+            .flatMap(e -> e.getValue().stream())
+            .collect(Collectors.toList());
+
+19. Flatten Map<String, Map<String, Integer>> → Map<key1.key2, value>
+Map<String, Integer> flat =
+        nested.entrySet().stream()
+              .flatMap(e1 -> e1.getValue().entrySet().stream()
+                  .map(e2 -> Map.entry(e1.getKey() + "." + e2.getKey(), e2.getValue())))
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+20. Invert a map: Map<K, V> → Map<V, K>
+Map<String, Integer> inverted =
+        map.entrySet().stream()
+           .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
+
+⚠️ If duplicate values exist, provide merge function.
+
+21. Merge two maps, sum values if key exists
+Map<String, Integer> merged =
+        Stream.concat(map1.entrySet().stream(), map2.entrySet().stream())
+              .collect(Collectors.toMap(
+                  Map.Entry::getKey,
+                  Map.Entry::getValue,
+                  Integer::sum   // merge rule
+              ));
+
+22. Sort a map by keys using streams
+LinkedHashMap<String, Integer> sorted =
+        map.entrySet().stream()
+           .sorted(Map.Entry.comparingByKey())
+           .collect(Collectors.toMap(
+                 Map.Entry::getKey,
+                 Map.Entry::getValue,
+                 (a,b)->a,
+                 LinkedHashMap::new
+           ));
+
+23. Sort a map by values using streams
+LinkedHashMap<String, Integer> sorted =
+        map.entrySet().stream()
+           .sorted(Map.Entry.comparingByValue())
+           .collect(Collectors.toMap(
+                 Map.Entry::getKey,
+                 Map.Entry::getValue,
+                 (a,b)->a,
+                 LinkedHashMap::new
+           ));
+
+24. Convert Map<String, List<Employee>> → List<Employee> (multi-level flatten)
+List<Employee> allEmployees =
+        map.values().stream()
+           .flatMap(List::stream)
+           .collect(Collectors.toList());
+
+25. Count values in Map<String, List<String>>
+Map<String, Long> countMap =
+        map.entrySet().stream()
+           .collect(Collectors.toMap(
+                 Map.Entry::getKey,
+                 e -> (long) e.getValue().size()
+           ));
+
+26. Combine list of maps → single map
+Map<String, Integer> combined =
+        listOfMaps.stream()
+            .flatMap(m -> m.entrySet().stream())
+            .collect(Collectors.toMap(
+                 Map.Entry::getKey,
+                 Map.Entry::getValue,
+                 Integer::sum
+            ));
+
+27. Filter map entries based on key and value conditions
+
+Example: key starts with “A” and value > 10
+
+Map<String, Integer> filtered =
+        map.entrySet().stream()
+           .filter(e -> e.getKey().startsWith("A"))
+           .filter(e -> e.getValue() > 10)
+           .collect(Collectors.toMap(
+                 Map.Entry::getKey,
+                 Map.Entry::getValue
+           ));
+
+28. Convert Map<Department, List<Employee>> → Map<Department, Long>
+Map<String, Long> result =
+        map.entrySet().stream()
+           .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> (long) e.getValue().size()
+           ));
+
+29. Find max salary employee per department
+Map<String, Optional<Employee>> maxSalary =
+        employees.stream()
+                 .collect(Collectors.groupingBy(
+                      Employee::getDepartment,
+                      Collectors.maxBy(Comparator.comparing(Employee::getSalary))
+                 ));
+
+
+If you want Employee instead of Optional<Employee>:
+
+Map<String, Employee> maxSalary =
+        employees.stream()
+                 .collect(Collectors.groupingBy(
+                      Employee::getDepartment,
+                      Collectors.collectingAndThen(
+                          Collectors.maxBy(Comparator.comparing(Employee::getSalary)),
+                          Optional::get
+                      )
+                 ));
+
+30. Remove entries where the value list is empty
+Map<String, List<Employee>> cleaned =
+        map.entrySet().stream()
+           .filter(e -> !e.getValue().isEmpty())
+           .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+           ));
+
+
+=============================
+Below are clean, interview-ready Java Stream solutions for C. Nested Object & Complex Mapping Problems (31–45).
+
+Assume some common model objects:
+
+class User { List<Phone> phones; }
+class Phone { String number; }
+
+class Order { LocalDateTime time; List<Product> products; }
+class Product { String name; }
+
+class Company { List<Department> depts; }
+class Department { List<Employee> employees; }
+class Employee { String name; double salary; Set<String> skills; List<Project> projects; }
+class Project { int tasks; }
+
+class Student { List<Marks> marks; }
+class Marks { String subject; int score; }
+
+class Invoice { String id; double amount; }
+
+class Customer { List<Order> orders; }
+
+class HobbyUser { String city; Set<String> hobbies; }
+
+
+C. Nested Object & Complex Mapping Problems (31–45)
+🔥 All answers include code, streams, and explanations.
+31. Extract all phone numbers from List<User> (User → List<Phone>)
+List<String> phoneNumbers =
+        users.stream()
+             .flatMap(u -> u.getPhones().stream())
+             .map(Phone::getNumber)
+             .collect(Collectors.toList());
+
+32. From List<Order>, find all products ordered in last 24 hours
+LocalDateTime now = LocalDateTime.now();
+
+List<Product> products =
+        orders.stream()
+              .filter(o -> o.getTime().isAfter(now.minusHours(24)))
+              .flatMap(o -> o.getProducts().stream())
+              .collect(Collectors.toList());
+
+33. Flatten List<Company> → employees → addresses
+List<Address> addresses =
+        companies.stream()
+                 .flatMap(c -> c.getDepts().stream())
+                 .flatMap(d -> d.getEmployees().stream())
+                 .flatMap(e -> e.getAddresses().stream())
+                 .collect(Collectors.toList());
+
+34. Convert Company → Department → Employee to List<Employee>
+List<Employee> employees =
+        companies.stream()
+                 .flatMap(c -> c.getDepts().stream())
+                 .flatMap(d -> d.getEmployees().stream())
+                 .collect(Collectors.toList());
+
+35. Extract unique skills from employees (Employee → Set<Skill>)
+Set<String> uniqueSkills =
+        employees.stream()
+                 .flatMap(e -> e.getSkills().stream())
+                 .collect(Collectors.toSet());
+
+36. Find highest-paid employee across all departments in all companies
+Optional<Employee> highest =
+        companies.stream()
+                 .flatMap(c -> c.getDepts().stream())
+                 .flatMap(d -> d.getEmployees().stream())
+                 .max(Comparator.comparing(Employee::getSalary));
+
+37. From List<Student> find topper per subject
+Map<String, Optional<Marks>> topperPerSubject =
+        students.stream()
+                .flatMap(s -> s.getMarks().stream())
+                .collect(Collectors.groupingBy(
+                        Marks::getSubject,
+                        Collectors.maxBy(Comparator.comparing(Marks::getScore))
+                ));
+
+
+If you want direct Marks:
+
+Map<String, Marks> toppers =
+        students.stream()
+                .flatMap(s -> s.getMarks().stream())
+                .collect(Collectors.groupingBy(
+                        Marks::getSubject,
+                        Collectors.collectingAndThen(
+                            Collectors.maxBy(Comparator.comparing(Marks::getScore)),
+                            Optional::get
+                        )
+                ));
+
+38. Find all customers who ordered more than 3 products total
+List<Customer> result =
+        customers.stream()
+            .filter(c ->
+                c.getOrders().stream()
+                  .flatMap(o -> o.getProducts().stream())
+                  .count() > 3
+            )
+            .collect(Collectors.toList());
+
+39. Sort employees by department then by project count
+List<Employee> sorted =
+        employees.stream()
+                 .sorted(
+                     Comparator.comparing(Employee::getDepartment)
+                               .thenComparing(e -> e.getProjects().size())
+                 )
+                 .collect(Collectors.toList());
+
+40. Count total tasks across all projects for all employees
+int totalTasks =
+        employees.stream()
+                 .flatMap(e -> e.getProjects().stream())
+                 .mapToInt(Project::getTasks)
+                 .sum();
+
+41. Convert List<Invoice> → Map<InvoiceId, TotalAmount>
+Map<String, Double> invoiceMap =
+        invoices.stream()
+                .collect(Collectors.toMap(
+                        Invoice::getId,
+                        Invoice::getAmount
+                ));
+
+42. From nested classes extract only those with a matching field deep inside
+
+Example: Get employees where any project has tasks > 10.
+
+List<Employee> result =
+        employees.stream()
+                 .filter(e -> e.getProjects().stream()
+                               .anyMatch(p -> p.getTasks() > 10))
+                 .collect(Collectors.toList());
+
+43. Convert List<User> → Map<City, Set<Hobbies>>
+Map<String, Set<String>> map =
+        users.stream()
+             .collect(Collectors.toMap(
+                     User::getCity,
+                     u -> new HashSet<>(u.getHobbies()),
+                     (s1, s2) -> { s1.addAll(s2); return s1; }
+             ));
+
+44. Flatten List<List<List<Integer>>> → List<Integer>
+List<Integer> flat =
+        list.stream()
+            .flatMap(List::stream)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+
+45. From List<Employee> → hierarchical structure dept → role → count
+
+Assume:
+
+class Employee {
+    String department;
+    String role;
+}
+
+
+Solution:
+
+Map<String, Map<String, Long>> hierarchy =
+        employees.stream()
+                 .collect(Collectors.groupingBy(
+                         Employee::getDepartment,
+                         Collectors.groupingBy(
+                                 Employee::getRole,
+                                 Collectors.counting()
+                         )
+                 ));
+
+
+============
+D. Filtering & Scenario-Based Questions (46–60)
+
+46. Filter employees older than 30 earning > 50k
+List<Employee> result = employees.stream()
+        .filter(e -> e.getAge() > 30 && e.getSalary() > 50000)
+        .toList();
+
+47. Get all orders whose any product has discount > 20%
+
+Assume each Order has List<Product> products.
+
+List<Order> result = orders.stream()
+        .filter(order -> order.getProducts().stream()
+                .anyMatch(p -> p.getDiscount() > 20))
+        .toList();
+
+48. From list of transactions, remove failed ones and sort by timestamp
+List<Transaction> result = transactions.stream()
+        .filter(tx -> tx.getStatus().equals("SUCCESS"))
+        .sorted(Comparator.comparing(Transaction::getTimestamp))
+        .toList();
+
+49. Find students where all subjects > passing marks
+List<Student> result = students.stream()
+        .filter(st -> st.getMarks().values().stream()     // map<subject,marks>
+                .allMatch(m -> m > passingMarks))
+        .toList();
+
+50. Filter strings where length == index
+List<String> result = IntStream.range(0, list.size())
+        .filter(i -> list.get(i).length() == i)
+        .mapToObj(list::get)
+        .toList();
+		
+51. Extract even indexed elements using streams
+List<String> result = IntStream.range(0, list.size())
+        .filter(i -> i % 2 == 0)
+        .mapToObj(list::get)
+        .toList();
+
+52. Skip first 3 elements, take next 5
+List<Integer> result = list.stream()
+        .skip(3)
+        .limit(5)
+        .toList();
+
+53. Case-insensitive filtering of names
+List<String> result = names.stream()
+        .filter(n -> n.equalsIgnoreCase("john"))
+        .toList();
+
+54. Find longest string without using a loop
+String longest = strings.stream()
+        .max(Comparator.comparing(String::length))
+        .orElse(null);
+
+55. Paginate a list using skip() and limit()
+int page = 2;     // 2nd page
+int size = 10;    // each page has 10 items
+
+List<String> pageData = list.stream()
+        .skip((long) (page - 1) * size)
+        .limit(size)
+        .toList();
+
+56. Check if list is strictly increasing
+boolean increasing = IntStream.range(1, list.size())
+        .allMatch(i -> list.get(i) > list.get(i - 1));
+
+57. Compare two lists and extract common + uncommon
+Common elements
+List<Integer> common = list1.stream()
+        .filter(list2::contains)
+        .toList();
+
+Uncommon elements
+List<Integer> uncommon = Stream.concat(list1.stream(), list2.stream())
+        .filter(e -> !(list1.contains(e) && list2.contains(e)))
+        .toList();
+
+58. Remove duplicates but keep order
+Best way using LinkedHashSet:
+List<Integer> result = new ArrayList<>(new LinkedHashSet<>(list));
+
+Or using stream:
+List<Integer> result = list.stream()
+        .distinct()
+        .toList();
+
+59. Find duplicate elements and their frequencies
+Map<Integer, Long> duplicates = list.stream()
+        .collect(Collectors.groupingBy(e -> e, Collectors.counting()))
+        .entrySet().stream()
+        .filter(e -> e.getValue() > 1)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+60. Filter map entries whose value contains certain keywords
+List<String> keywords = Arrays.asList("error", "fail", "timeout");
+
+Map<String, String> result = map.entrySet().stream()
+        .filter(e -> keywords.stream().anyMatch(k ->
+                e.getValue().toLowerCase().contains(k)))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		
+==============
+E. Grouping, Partitioning, Summarizing (61–75)
+
+61. Group employees by department
+Map<String, List<Employee>> byDept =
+        employees.stream()
+                 .collect(Collectors.groupingBy(Employee::getDepartment));
+
+62. Group employees by age bracket (20–30, 30–40, etc.)
+Map<String, List<Employee>> byAgeBracket =
+        employees.stream()
+                 .collect(Collectors.groupingBy(e -> {
+                     int age = e.getAge();
+                     if (age <= 30) return "20-30";
+                     else if (age <= 40) return "30-40";
+                     else if (age <= 50) return "40-50";
+                     return "50+";
+                 }));
+
+63. Group products by category and sum prices
+Map<String, Double> totalByCategory =
+        products.stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        Collectors.summingDouble(Product::getPrice)
+                ));
+
+64. Partition students into pass/fail
+Map<Boolean, List<Student>> passFail =
+        students.stream()
+                .collect(Collectors.partitioningBy(s -> s.getMarks() >= 40));
+
+65. Group transactions by currency + count entries
+Map<String, Long> transactionCount =
+        transactions.stream()
+                    .collect(Collectors.groupingBy(
+                            Transaction::getCurrency,
+                            Collectors.counting()
+                    ));
+
+66. Employee list → summary statistics
+DoubleSummaryStatistics stats =
+        employees.stream()
+                 .collect(Collectors.summarizingDouble(Employee::getSalary));
+
+double min = stats.getMin();
+double max = stats.getMax();
+double avg = stats.getAverage();
+double total = stats.getSum();
+long count = stats.getCount();
+
+67. Group by month extracted from date
+Map<Month, List<Order>> byMonth =
+        orders.stream()
+              .collect(Collectors.groupingBy(o -> o.getDate().getMonth()));
+
+68. Group invoices by customer ↠ total outstanding
+Map<String, Double> outstanding =
+        invoices.stream()
+                .collect(Collectors.groupingBy(
+                        Invoice::getCustomerId,
+                        Collectors.summingDouble(Invoice::getAmount)
+                ));
+
+69. Group employees by skill → count employees per skill
+Map<String, Long> skillCount =
+        employees.stream()
+                 .flatMap(e -> e.getSkills().stream())
+                 .collect(Collectors.groupingBy(
+                         skill -> skill,
+                         Collectors.counting()
+                 ));
+
+70. Group products by warehouse + filter expired
+Map<String, List<Product>> byWarehouse =
+        products.stream()
+                .filter(p -> !p.isExpired())
+                .collect(Collectors.groupingBy(Product::getWarehouse));
+
+71. Group orders by status then sort groups by count
+Map<String, Long> orderCount =
+        orders.stream()
+              .collect(Collectors.groupingBy(
+                      Order::getStatus,
+                      Collectors.counting()
+              ));
+
+LinkedHashMap<String, Long> sorted =
+        orderCount.entrySet().stream()
+                  .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                  .collect(Collectors.toMap(
+                          Map.Entry::getKey,
+                          Map.Entry::getValue,
+                          (a,b) -> a,
+                          LinkedHashMap::new
+                  ));
+
+72. Group books by author and find the highest-rated book
+Map<String, Optional<Book>> bestBookByAuthor =
+        books.stream()
+             .collect(Collectors.groupingBy(
+                     Book::getAuthor,
+                     Collectors.maxBy(Comparator.comparing(Book::getRating))
+             ));
+
+
+Flatten Optional:
+
+Map<String, Book> bestBook =
+        books.stream()
+             .collect(Collectors.groupingBy(
+                     Book::getAuthor,
+                     Collectors.collectingAndThen(
+                             Collectors.maxBy(Comparator.comparing(Book::getRating)),
+                             Optional::get
+                     )
+             ));
+
+73. Group by year → sales stats per year
+Map<Integer, DoubleSummaryStatistics> salesPerYear =
+        sales.stream()
+             .collect(Collectors.groupingBy(
+                     s -> s.getDate().getYear(),
+                     Collectors.summarizingDouble(Sale::getAmount)
+             ));
+
+74. Find top 3 highest-selling products via grouping + sorting
+Map<String, Double> productTotals =
+        products.stream()
+                .collect(Collectors.groupingBy(
+                        Product::getName,
+                        Collectors.summingDouble(Product::getPrice)
+                ));
+
+List<Map.Entry<String, Double>> top3 =
+        productTotals.entrySet().stream()
+                     .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                     .limit(3)
+                     .collect(Collectors.toList());
+
+75. Summarize salary by role
+Map<String, Double> salaryByRole =
+        employees.stream()
+                 .collect(Collectors.groupingBy(
+                         Employee::getRole,
+                         Collectors.summingDouble(Employee::getSalary)
+                 ));
+
+==================
+F. Optional, Comparator, Reduce Problems (76–90)
+76. Use reduce() to calculate factorial
+int n = 6;
+int factorial = IntStream.rangeClosed(1, n)
+        .reduce(1, (a, b) -> a * b);
+System.out.println(factorial);
+
+77. Find longest string using reduce()
+List<String> list = Arrays.asList("apple", "banana", "watermelon");
+
+String longest = list.stream()
+        .reduce((s1, s2) -> s1.length() >= s2.length() ? s1 : s2)
+        .orElse("");
+
+78. Sum all numbers using reduce(identity, accumulator)
+List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);
+int sum = nums.stream().reduce(0, Integer::sum);
+
+79. Find employee with min salary using reduce
+Employee minSalaryEmp = employees.stream()
+        .reduce((e1, e2) -> e1.getSalary() <= e2.getSalary() ? e1 : e2)
+        .orElse(null);
+
+80. Convert list of names into hyphen-separated string using reduce
+List<String> names = Arrays.asList("John", "Mike", "Sara");
+
+String result = names.stream()
+        .reduce((a, b) -> a + "-" + b)
+        .orElse("");
+
+81. Sort using custom comparator inside stream
+List<Employee> sorted = employees.stream()
+        .sorted((a, b) -> a.getName().compareTo(b.getName()))
+        .toList();
+
+82. Multi-level sorting with null handling
+List<Employee> sorted = employees.stream()
+        .sorted(Comparator
+                .comparing(Employee::getDept, Comparator.nullsLast(String::compareTo))
+                .thenComparing(Employee::getSalary))
+        .toList();
+
+83. Use Optional to return default object if employee not found
+Employee defaultEmp = new Employee("NA", 0);
+
+Employee emp = employees.stream()
+        .filter(e -> e.getId() == 101)
+        .findFirst()
+        .orElse(defaultEmp);
+
+84. Reduce list of invoices into aggregated invoice
+Invoice total = invoices.stream().reduce(
+        new Invoice(0, 0.0),
+        (acc, inv) -> {
+            acc.setQty(acc.getQty() + inv.getQty());
+            acc.setAmount(acc.getAmount() + inv.getAmount());
+            return acc;
+        }
+);
+
+85. Find oldest person from nested list using flatMap + reduce
+List<List<Person>> nested = Arrays.asList(list1, list2, list3);
+
+Person oldest = nested.stream()
+        .flatMap(List::stream)
+        .reduce((p1, p2) -> p1.getAge() >= p2.getAge() ? p1 : p2)
+        .orElse(null);
+
+86. Find max using reduce (without using max())
+int max = nums.stream()
+        .reduce(Integer::max)
+        .orElseThrow();
+
+87. Combine multiple lists using Stream.of(...).flatMap()
+List<Integer> combined = Stream.of(list1, list2, list3)
+        .flatMap(List::stream)
+        .toList();
+
+88. Use reduce to group consecutive duplicates
+
+Input: [1,1,2,2,2,3,1]
+Output: [[1,1],[2,2,2],[3],[1]]
+
+List<Integer> input = Arrays.asList(1,1,2,2,2,3,1);
+
+List<List<Integer>> result = input.stream().reduce(
+        new ArrayList<>(),
+        (acc, num) -> {
+            if (acc.isEmpty() || !acc.get(acc.size() - 1).get(0).equals(num)) {
+                acc.add(new ArrayList<>(List.of(num)));
+            } else {
+                acc.get(acc.size() - 1).add(num);
+            }
+            return acc;
+        },
+        (acc1, acc2) -> acc1
+);
+
+89. Implement custom collector to join strings with prefix/suffix
+
+Goal:
+Input: ["A", "B", "C"]
+Output: "<<A-B-C>>"
+
+Collector<String, StringBuilder, String> withWrapper =
+        Collector.of(
+                () -> new StringBuilder("<<"),
+                (sb, str) -> {
+                    if (sb.length() > 2) sb.append("-");
+                    sb.append(str);
+                },
+                (sb1, sb2) -> sb1.append(sb2),
+                sb -> sb.append(">>").toString()
+        );
+
+String result = List.of("A", "B", "C").stream().collect(withWrapper);
+
+90. Find second highest salary using stream (no sorting + no skip allowed)
+
+Use reduce to maintain two maxes.
+
+List<Integer> salaries = Arrays.asList(5000,7000,3000,9000,8000);
+
+int secondHighest = salaries.stream()
+        .reduce(new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE}, (acc, sal) -> {
+            int max = acc[0];
+            int second = acc[1];
+
+            if (sal > max) {
+                acc[1] = acc[0];
+                acc[0] = sal;
+            } else if (sal > second && sal != max) {
+                acc[1] = sal;
+            }
+            return acc;
+        })[1];
+
+System.out.println(secondHighest);
+=====================
+G. Real Industry Use-case Scenarios (91–100)
+
+91. Convert DB result rows (List<Object[]>) → DTO list using streams
+class EmployeeDTO {
+    String name;
+    int age;
+    double salary;
+    // constructor + getters/setters
+}
+
+List<EmployeeDTO> dtoList =
+        rows.stream()
+            .map(r -> new EmployeeDTO(
+                    (String) r[0],
+                    ((Number) r[1]).intValue(),
+                    ((Number) r[2]).doubleValue()
+            ))
+            .collect(Collectors.toList());
+
+92. Convert API response (JSON) → POJO list using multiple map() steps
+
+Assume ApiResponse → Data → Item.
+
+List<Item> items =
+        apiResponse.getDataList().stream()
+                   .flatMap(d -> d.getItems().stream())
+                   .map(i -> new Item(
+                           i.getId(),
+                           i.getName().trim(),
+                           i.getPrice() == null ? 0 : i.getPrice()
+                   ))
+                   .collect(Collectors.toList());
+
+93. Build hierarchical JSON from flat entities
+
+Flat entity:
+
+class FlatEntity {
+   String country;
+   String state;
+   String city;
+}
+
+
+Group hierarchical:
+
+Map<String, Map<String, List<String>>> hierarchy =
+        flatEntities.stream()
+                .collect(Collectors.groupingBy(
+                        FlatEntity::getCountry,
+                        Collectors.groupingBy(
+                                FlatEntity::getState,
+                                Collectors.mapping(FlatEntity::getCity,
+                                        Collectors.toList())
+                        )
+                ));
+
+
+Used for dropdowns, cascading selects, JSON trees.
+
+94. Merge duplicate customers based on email
+Map<String, Customer> merged =
+        customers.stream()
+                .collect(Collectors.toMap(
+                        Customer::getEmail,
+                        c -> c,
+                        (c1, c2) -> {
+                            c1.getOrders().addAll(c2.getOrders());
+                            return c1;
+                        }
+                ));
+
+
+De-duplicates customer entries while merging their orders.
+
+95. Clean CSV rows (remove blanks, trim, validate)
+List<String[]> cleaned =
+        csvRows.stream()
+               .map(row -> row.split(","))
+               .map(arr -> Arrays.stream(arr)
+                                 .map(String::trim)
+                                 .toArray(String[]::new))
+               .filter(arr -> arr.length == 5)            // validate columns
+               .filter(arr -> Arrays.stream(arr)
+                                    .noneMatch(String::isEmpty)) // no empty fields
+               .collect(Collectors.toList());
+
+96. Detect anomalies in transactions
+
+Rules (example):
+
+amount > 10,000
+
+location mismatch
+
+same card used twice in < 10 seconds
+
+List<Transaction> anomalies =
+        transactions.stream()
+                .filter(t -> t.getAmount() > 10000)
+                .filter(t -> !t.getLocation().equals(t.getUser().getHomeLocation()))
+                .collect(Collectors.toList());
+
+
+Add time-based logic if needed.
+
+97. Remove sensitive fields (masking)
+
+Example: mask email & phone.
+
+List<UserDTO> sanitized =
+        users.stream()
+             .map(u -> new UserDTO(
+                     u.getName(),
+                     u.getEmail().replaceAll("(^.).*(@.*)", "$1*****$2"),
+                     "XXXXXX" + u.getPhone().substring(u.getPhone().length() - 3)
+             ))
+             .collect(Collectors.toList());
+
+98. Build combined config map from multiple config files
+
+Assume each file returns Map<String, String>.
+
+Map<String, String> finalConfig =
+        configFiles.stream()
+                   .map(ConfigLoader::load)     // returns Map<String, String>
+                   .flatMap(map -> map.entrySet().stream())
+                   .collect(Collectors.toMap(
+                           Map.Entry::getKey,
+                           Map.Entry::getValue,
+                           (v1, v2) -> v2 // override
+                   ));
+
+99. Chunk a list into fixed-size batches using streams
+int batchSize = 50;
+
+List<List<Integer>> batches =
+        IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
+                 .mapToObj(i -> list.subList(
+                         i * batchSize,
+                         Math.min(list.size(), (i + 1) * batchSize)
+                 ))
+                 .collect(Collectors.toList());
+
+100. ParallelStream – convert sequential to parallel safely
+ 
+ Use parallel only for:
+
+CPU-heavy tasks
+
+Stateless operations
+
+Independent mapping
+
+List<Result> results =
+        tasks.parallelStream()
+             .map(this::processTask)       // heavy CPU function
+             .collect(Collectors.toList());
+
+Measure performance:
+long start = System.currentTimeMillis();
+
+tasks.parallelStream().forEach(this::processTask);
+
+long end = System.currentTimeMillis();
+System.out.println("Time: " + (end - start));
